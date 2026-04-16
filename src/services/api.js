@@ -1,10 +1,11 @@
 // Debug environment variables
 console.log('Environment mode:', import.meta.env.MODE);
 console.log('PROD flag:', import.meta.env.PROD);
+console.log('NODE_ENV:', import.meta.env.NODE_ENV);
 console.log('Production API URL:', import.meta.env.VITE_REACT_APP_PRODUCTION_API_URL);
 console.log('Development API URL:', import.meta.env.VITE_REACT_APP_API_URL);
 
-const API_URL = import.meta.env.PROD 
+const API_URL = import.meta.env.NODE_ENV === 'production' 
   ? import.meta.env.VITE_REACT_APP_PRODUCTION_API_URL 
   : import.meta.env.VITE_REACT_APP_API_URL || 'http://localhost:3000';
 
