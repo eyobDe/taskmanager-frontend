@@ -1,13 +1,47 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.REACT_APP_PRODUCTION_API_URL 
+  : process.env.REACT_APP_API_URL || 'http://localhost:3000';
+
+// Generic API request helper
+const apiRequest = async (endpoint, options = {}) => {
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw error;
+  }
+};
+
+// Health check
+export const checkHealth = async () => {
+  return await apiRequest('/health');
+};
 
 export const fetchUserDashboard = async (userId) => {
-  // Implementation in Phase 3
+  return await apiRequest(`/api/users/${userId}/dashboard`);
 };
 
 export const createTask = async (taskData) => {
-  // Implementation in Phase 3
+  return await apiRequest('/api/tasks', {
+    method: 'POST',
+    body: JSON.stringify(taskData),
+  });
 };
 
 export const completeTask = async (taskId) => {
-  // Implementation in Phase 3
+  return await apiRequest(`/api/tasks/${taskId}/complete`, {
+    method: 'PUT',
+  });
 };
