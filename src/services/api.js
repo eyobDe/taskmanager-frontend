@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.MODE === 'production' 
+const API_URL = import.meta.env.PROD 
   ? import.meta.env.VITE_REACT_APP_PRODUCTION_API_URL 
   : import.meta.env.VITE_REACT_APP_API_URL || 'http://localhost:3000';
 
