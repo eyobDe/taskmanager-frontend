@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { fetchDashboard, postCreateTask, putCompleteTask, postCreateProject } from '../services/apiEndpoints.js';
+import { fetchDashboard, postCreateTask, putCompleteTask, postCreateProject, postCreateSubtask, putCompleteSubtask } from '../services/apiEndpoints.js';
 
 // Create TaskContext
 const TaskContext = createContext();
@@ -136,6 +136,51 @@ export const TaskProvider = ({ children }) => {
     }
   }, []);
 
+  // Create a new subtask
+  const createNewSubtask = useCallback(async (taskId, title) => {
+    try {
+      const newSubtask = await postCreateSubtask(taskId, { title });
+      
+      setTasks(prevTasks => prevTasks.map(task => {
+        const currentId = task.id || task._id;
+        if (currentId === taskId) {
+          // Ensure subtasks array exists before spreading
+          const existingSubtasks = task.subtasks || [];
+          return { ...task, subtasks: [...existingSubtasks, newSubtask] };
+        }
+        return task;
+      }));
+      
+      return newSubtask;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  }, []);
+
+  // Mark a subtask as complete
+  const markSubtaskComplete = useCallback(async (taskId, subtaskId) => {
+    try {
+      await putCompleteSubtask(subtaskId);
+      
+      setTasks(prevTasks => prevTasks.map(task => {
+        const currentId = task.id || task._id;
+        if (currentId === taskId) {
+          return {
+            ...task,
+            subtasks: (task.subtasks || []).map(st => 
+              (st.id || st._id) === subtaskId ? { ...st, is_completed: true } : st
+            )
+          };
+        }
+        return task;
+      }));
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  }, []);
+
   // Clear error
   const clearError = useCallback(() => {
     setError(null);
@@ -152,6 +197,8 @@ export const TaskProvider = ({ children }) => {
     createNewTask,
     createNewProject,
     markTaskComplete,
+    createNewSubtask,
+    markSubtaskComplete,
     clearError
   };
 

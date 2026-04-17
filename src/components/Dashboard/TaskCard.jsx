@@ -3,10 +3,11 @@ import { useTask } from '../../context/TaskContext';
 import { useToast } from '../common/ToastContainer';
 
 const TaskCard = ({ task }) => {
-  const { markTaskComplete } = useTask();
+  const { markTaskComplete, createNewSubtask, markSubtaskComplete } = useTask();
   const { addToast } = useToast();
   const [isCompleting, setIsCompleting] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [subtaskTitle, setSubtaskTitle] = useState('');
 
   const taskId = task.id || task._id;
   const isCompleted = task.is_completed;
@@ -34,6 +35,29 @@ const TaskCard = ({ task }) => {
       addToast('Failed to complete task', 'error');
     } finally {
       setIsCompleting(false);
+    }
+  };
+
+  const handleMarkSubtaskComplete = async (subtaskId) => {
+    try {
+      await markSubtaskComplete(taskId, subtaskId);
+      addToast('Subtask completed!', 'success');
+    } catch (error) {
+      addToast('Failed to complete subtask', 'error');
+    }
+  };
+
+  const handleCreateSubtask = (e) => {
+    if (e.key === 'Enter' && subtaskTitle.trim()) {
+      e.preventDefault();
+      createNewSubtask(taskId, subtaskTitle.trim())
+        .then(() => {
+          addToast('Subtask created!', 'success');
+          setSubtaskTitle('');
+        })
+        .catch(() => {
+          addToast('Failed to create subtask', 'error');
+        });
     }
   };
 
@@ -116,6 +140,40 @@ const TaskCard = ({ task }) => {
             </button>
           )}
         </div>
+      </div>
+      
+      {/* Subtasks Section */}
+      <div className="mt-4 pl-3 border-l-2 border-slate-200 space-y-2">
+        {/* Existing Subtasks */}
+        {(task.subtasks || []).map((st) => (
+          <div key={st._id || st.id} className="flex items-center gap-3">
+            <input 
+              type="checkbox" 
+              checked={st.is_completed} 
+              onChange={() => handleMarkSubtaskComplete(st._id || st.id)}
+              disabled={st.is_completed}
+              className="rounded border-slate-300 text-blue-500 focus:ring-blue-500 w-4 h-4 cursor-pointer disabled:opacity-50"
+            />
+            <span className={`text-sm ${st.is_completed ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+              {st.title}
+            </span>
+          </div>
+        ))}
+        
+        {/* Inline Subtask Creation */}
+        {!isCompleted && (
+          <div className="flex items-center gap-3 pt-1">
+            <span className="text-slate-300 w-4 h-4 flex items-center justify-center">+</span>
+            <input 
+              type="text" 
+              value={subtaskTitle}
+              onChange={(e) => setSubtaskTitle(e.target.value)}
+              onKeyDown={handleCreateSubtask}
+              placeholder="+ Add subtask (press Enter)" 
+              className="text-sm bg-transparent border-none focus:outline-none focus:ring-0 w-full p-0 placeholder-slate-400 text-slate-700"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
