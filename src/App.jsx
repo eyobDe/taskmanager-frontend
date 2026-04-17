@@ -1,17 +1,38 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
+import { UserProvider } from './context/UserContext';
+import { TaskProvider } from './context/TaskContext';
+import { ToastProvider } from './components/common/ToastContainer';
+import DashboardLayout from './components/Layout/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
-import NotFoundPage from './pages/NotFoundPage';
+import AboutPage from './pages/AboutPage';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/dashboard/:userId" element={<DashboardPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
+    <UserProvider>
+      <TaskProvider>
+        <ToastProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={
+                <DashboardLayout>
+                  <DashboardPage />
+                </DashboardLayout>
+              } />
+              <Route path="/dashboard" element={
+                <DashboardLayout>
+                  <DashboardPage />
+                </DashboardLayout>
+              } />
+              <Route path="/about" element={
+                <DashboardLayout>
+                  <AboutPage />
+                </DashboardLayout>
+              } />
+            </Routes>
+          </Router>
+        </ToastProvider>
+      </TaskProvider>
+    </UserProvider>
   );
 }
 
