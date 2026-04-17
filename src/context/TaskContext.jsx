@@ -54,7 +54,7 @@ export const TaskProvider = ({ children }) => {
         ...prevTasks,
         {
           ...newTask,
-          project_name: projects.find(p => p.id === taskData.project_id)?.name || 'Unknown Project'
+          project_name: projects.find(p => p._id === taskData.project_id)?.name || 'Unknown Project'
         }
       ]);
       
@@ -115,20 +115,37 @@ export const TaskProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      const newProject = await postCreateProject({ name, user_id: userId });
+      // Ensure we have valid data before sending
+      if (!name || !userId) {
+        throw new Error('Project name and user ID are required');
+      }
       
-      // Add the new project to local state
+      const projectData = {
+        name: name.trim(),
+        user_id: userId
+      };
+      
+      console.log('Creating project with data:', projectData);
+      
+      const newProject = await postCreateProject(projectData);
+      
+      console.log('Project created successfully:', newProject);
+      
+      // Add the new project to local state with proper ID handling
+      const projectToAdd = {
+        _id: newProject._id || newProject.id,
+        name: newProject.name,
+        tasks: []
+      };
+      
       setProjects(prevProjects => [
         ...prevProjects,
-        {
-          id: newProject._id,
-          name: newProject.name,
-          tasks: []
-        }
+        projectToAdd
       ]);
       
       return newProject;
     } catch (err) {
+      console.error('Project creation error:', err);
       setError(err.message);
       throw err;
     } finally {
@@ -195,8 +212,10 @@ export const TaskProvider = ({ children }) => {
     error,
     loadDashboard,
     createNewTask,
+    createTask: createNewTask, // Alias for new components
     createNewProject,
     markTaskComplete,
+    completeTask: markTaskComplete, // Alias for new components
     createNewSubtask,
     markSubtaskComplete,
     clearError
@@ -208,6 +227,10 @@ export const TaskProvider = ({ children }) => {
     </TaskContext.Provider>
   );
 };
+
+// Custom hook to use TaskContext
+// Export the TaskContext directly for components that need it
+export { TaskContext };
 
 // Custom hook to use TaskContext
 export const useTask = () => {

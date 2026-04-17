@@ -26,6 +26,9 @@ export const UserProvider = ({ children }) => {
   );
 };
 
+// Export the UserContext directly for components that need it
+export { UserContext };
+
 // Custom hook to use UserContext
 export const useUser = () => {
   const context = useContext(UserContext);

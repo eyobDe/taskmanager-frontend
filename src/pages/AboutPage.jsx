@@ -1,102 +1,90 @@
-import React from 'react';
-
-const AboutPage = () => {
+export default function AboutPage() {
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="border-b pb-6 mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">About Task Manager</h1>
-        <p className="text-gray-600 mt-2">
-          A modern task management system with dependency tracking
+    <div className="p-8 max-w-4xl">
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">About TaskMaster Pro</h1>
+      
+      <div className="space-y-6 text-slate-600 dark:text-slate-400">
+        <p className="text-lg leading-relaxed">
+          TaskMaster Pro is a modern task management system designed for teams. 
+          Built with a focus on dependency tracking and productivity.
         </p>
-      </div>
 
-      <div className="space-y-8">
-        {/* Project Overview */}
-        <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Project Overview</h2>
-          <p className="text-gray-700 leading-relaxed">
-            Task Manager is a comprehensive task management application that allows users to create, 
-            organize, and track tasks with complex dependency relationships. Built with modern 
-            web technologies, it provides a clean and intuitive interface for managing projects 
-            of any size.
-          </p>
-        </section>
-
-        {/* Key Features */}
-        <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Key Features</h2>
-          <ul className="space-y-2 text-gray-700">
-            <li className="flex items-start">
-              <span className="text-blue-500 mr-2">-</span>
-              <span>Task creation with optional dependencies</span>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Features</h2>
+          <ul className="space-y-2 text-sm">
+            <li className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+              Task dependency management
             </li>
-            <li className="flex items-start">
-              <span className="text-blue-500 mr-2">-</span>
-              <span>Automatic dependency tracking and blocking detection</span>
+            <li className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              Multi-project support
             </li>
-            <li className="flex items-start">
-              <span className="text-blue-500 mr-2">-</span>
-              <span>Project-based task organization</span>
+            <li className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+              Dark mode support
             </li>
-            <li className="flex items-start">
-              <span className="text-blue-500 mr-2">-</span>
-              <span>Real-time task completion and unblocking</span>
+            <li className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+              Real-time blocking status
             </li>
-            <li className="flex items-start">
-              <span className="text-blue-500 mr-2">-</span>
-              <span>Professional UI with Tailwind CSS</span>
+            <li className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+              Subtask management
             </li>
           </ul>
-        </section>
+        </div>
 
-        {/* Technology Stack */}
-        <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Technology Stack</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Technology Stack</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-medium text-gray-700 mb-2">Frontend</h3>
-              <ul className="space-y-1 text-gray-600">
-                <li>React 18 with Hooks</li>
-                <li>Vite for development</li>
-                <li>React Router for navigation</li>
-                <li>Tailwind CSS for styling</li>
-                <li>React Context for state management</li>
+              <h3 className="font-medium text-slate-900 dark:text-white mb-3">Frontend</h3>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <span className="text-blue-400">React</span> 18 with Hooks
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-400">Vite</span> for development
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-purple-400">React Router</span> for navigation
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">Tailwind CSS</span> for styling
+                </li>
               </ul>
             </div>
             <div>
-              <h3 className="font-medium text-gray-700 mb-2">Backend</h3>
-              <ul className="space-y-1 text-gray-600">
-                <li>Node.js with Express</li>
-                <li>MongoDB with Mongoose ODM</li>
-                <li>RESTful API design</li>
-                <li>Embedded dependency tracking</li>
-                <li>Optimized database queries</li>
+              <h3 className="font-medium text-slate-900 dark:text-white mb-3">Backend</h3>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <span className="text-green-400">Node.js</span> with Express
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-emerald-400">MongoDB</span> with Mongoose
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-blue-400">RESTful API</span> design
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-400">Optimized</span> database queries
+                </li>
               </ul>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* Architecture */}
-        <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Architecture</h2>
-          <p className="text-gray-700 leading-relaxed">
-            The application follows a modern client-server architecture with clear separation of concerns. 
-            The frontend uses React Context for state management, while the backend implements a 
-            RESTful API with optimized database queries. Task dependencies are tracked using an 
-            embedded schema approach for performance, allowing efficient blocking detection with 
-            maximum 3 database queries for the dashboard view.
-          </p>
-        </section>
-
-        {/* Version Info */}
-        <section className="border-t pt-6">
-          <p className="text-sm text-gray-500">
-            Version 1.0.0 | Built with React, Node.js, and MongoDB
-          </p>
-        </section>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Built by</h2>
+          <p className="text-sm">A case study in modern full-stack development.</p>
+          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Version 1.0.0 | Production-ready UI/UX
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
-
-export default AboutPage;
+}
