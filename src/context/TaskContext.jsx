@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { fetchDashboard, postCreateTask, putCompleteTask } from '../services/apiEndpoints.js';
+import { fetchDashboard, postCreateTask, putCompleteTask, postCreateProject } from '../services/apiEndpoints.js';
 
 // Create TaskContext
 const TaskContext = createContext();
@@ -8,6 +8,7 @@ const TaskContext = createContext();
 export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -108,6 +109,33 @@ export const TaskProvider = ({ children }) => {
     }
   }, []);
 
+  // Create a new project
+  const createNewProject = useCallback(async (name, userId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const newProject = await postCreateProject({ name, user_id: userId });
+      
+      // Add the new project to local state
+      setProjects(prevProjects => [
+        ...prevProjects,
+        {
+          id: newProject._id,
+          name: newProject.name,
+          tasks: []
+        }
+      ]);
+      
+      return newProject;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Clear error
   const clearError = useCallback(() => {
     setError(null);
@@ -116,10 +144,13 @@ export const TaskProvider = ({ children }) => {
   const value = {
     tasks,
     projects,
+    selectedProjectId,
+    setSelectedProjectId,
     loading,
     error,
     loadDashboard,
     createNewTask,
+    createNewProject,
     markTaskComplete,
     clearError
   };

@@ -6,7 +6,7 @@ import TaskList from '../components/Dashboard/TaskList';
 
 const DashboardPage = () => {
   const { user } = useUser();
-  const { tasks, projects, loading, error, loadDashboard, clearError } = useTask();
+  const { tasks, projects, selectedProjectId, loading, error, loadDashboard, clearError } = useTask();
 
   useEffect(() => {
     if (user) {
@@ -17,7 +17,7 @@ const DashboardPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600">Loading dashboard...</div>
+        <div className="text-slate-600">Loading...</div>
       </div>
     );
   }
@@ -36,21 +36,45 @@ const DashboardPage = () => {
     );
   }
 
+  // Filter tasks by selected project
+  const filteredTasks = selectedProjectId 
+    ? tasks.filter(task => task.project_id === selectedProjectId)
+    : [];
+
+  const selectedProject = selectedProjectId 
+    ? projects.find(p => p.id === selectedProjectId)
+    : null;
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Page Header */}
-      <div className="border-b pb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Task Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Manage your tasks and track dependencies across {projects.length} projects
-        </p>
-      </div>
+    <div className="h-full flex flex-col">
+      {!selectedProjectId ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-slate-400 text-lg mb-2">No project selected</div>
+            <div className="text-slate-500 text-sm">Select or create a project in the sidebar</div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col">
+          {/* Project Header */}
+          <div className="px-8 py-6 border-b border-slate-200">
+            <h1 className="text-xl font-semibold text-slate-900">{selectedProject?.name}</h1>
+            <p className="text-slate-600 text-sm mt-1">
+              {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
+            </p>
+          </div>
 
-      {/* Create Task Form */}
-      <CreateTaskForm projects={projects} />
+          {/* Create Task Form */}
+          <div className="px-8 py-4 border-b border-slate-200">
+            <CreateTaskForm projects={projects.filter(p => p.id === selectedProjectId)} />
+          </div>
 
-      {/* Task List */}
-      <TaskList tasks={tasks} />
+          {/* Task List */}
+          <div className="flex-1 px-8 py-6">
+            <TaskList tasks={filteredTasks} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

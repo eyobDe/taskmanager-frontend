@@ -1,177 +1,131 @@
 import React, { useState } from 'react';
 import { useTask } from '../../context/TaskContext';
+import { useUser } from '../../context/UserContext';
 
 const CreateTaskForm = ({ projects }) => {
-  const { createNewTask } = useTask();
-  const [formData, setFormData] = useState({
-    title: '',
-    project_id: '',
-    due_date: '',
-    dependency_ids: []
-  });
+  const { createNewTask, tasks, selectedProjectId } = useTask();
+  const { user } = useUser();
+  const [title, setTitle] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [dependencyIds, setDependencyIds] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [showDependencies, setShowDependencies] = useState(false);
 
-  // Filter tasks by selected project for dependencies
-  const getAvailableDependencies = () => {
-    if (!formData.project_id) return [];
-    
-    const selectedProject = projects.find(p => p.id === formData.project_id);
-    return selectedProject?.tasks || [];
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const availableDependencies = selectedProjectId 
+    ? tasks.filter(task => task.project_id === selectedProjectId && !task.is_completed)
+    : [];
 
   const handleDependencyToggle = (taskId) => {
-    setFormData(prev => ({
-      ...prev,
-      dependency_ids: prev.dependency_ids.includes(taskId)
-        ? prev.dependency_ids.filter(id => id !== taskId)
-        : [...prev.dependency_ids, taskId]
-    }));
+    setDependencyIds(prev => 
+      prev.includes(taskId)
+        ? prev.filter(id => id !== taskId)
+        : [...prev, taskId]
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     
-    if (!formData.title.trim() || !formData.project_id) {
-      setError('Title and project are required');
-      return;
-    }
+    if (!title.trim() || !selectedProjectId) return;
 
     setIsSubmitting(true);
     try {
       await createNewTask({
-        title: formData.title.trim(),
-        project_id: formData.project_id,
-        due_date: formData.due_date || null,
-        dependency_ids: formData.dependency_ids
+        title: title.trim(),
+        project_id: selectedProjectId,
+        assignee_id: user.id,
+        due_date: dueDate || null,
+        dependency_ids: dependencyIds
       });
       
       // Reset form
-      setFormData({
-        title: '',
-        project_id: '',
-        due_date: '',
-        dependency_ids: []
-      });
+      setTitle('');
+      setDueDate('');
+      setDependencyIds([]);
+      setShowDependencies(false);
     } catch (err) {
-      setError(err.message);
+      console.error('Error creating task:', err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const availableDependencies = getAvailableDependencies();
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-300 p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Create New Task</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-            Task Title *
-          </label>
+    <div className="border-b border-slate-200">
+      <form onSubmit={handleSubmit} className="px-8 py-4">
+        <div className="flex items-center gap-3">
+          {/* Task Title Input */}
           <input
             type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter task title"
-            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a task name and press Enter..."
+            className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent"
+            disabled={!selectedProjectId || isSubmitting}
           />
-        </div>
 
-        {/* Project */}
-        <div>
-          <label htmlFor="project_id" className="block text-sm font-medium text-gray-700 mb-1">
-            Project *
-          </label>
-          <select
-            id="project_id"
-            name="project_id"
-            value={formData.project_id}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          >
-            <option value="">Select a project</option>
-            {projects.map(project => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Due Date */}
-        <div>
-          <label htmlFor="due_date" className="block text-sm font-medium text-gray-700 mb-1">
-            Due Date
-          </label>
+          {/* Due Date Input */}
           <input
             type="date"
-            id="due_date"
-            name="due_date"
-            value={formData.due_date}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent"
+            disabled={!selectedProjectId || isSubmitting}
           />
+
+          {/* Dependencies Toggle */}
+          {availableDependencies.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowDependencies(!showDependencies)}
+              className={`px-3 py-2 text-sm rounded-md border transition-colors ${
+                dependencyIds.length > 0
+                  ? 'bg-slate-100 border-slate-300 text-slate-700'
+                  : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+              }`}
+              disabled={!selectedProjectId || isSubmitting}
+            >
+              Dependencies {dependencyIds.length > 0 && `(${dependencyIds.length})`}
+            </button>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={!title.trim() || !selectedProjectId || isSubmitting}
+            className="px-4 py-2 text-sm bg-slate-900 text-white rounded-md hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isSubmitting ? '...' : 'Add'}
+          </button>
         </div>
 
-        {/* Dependencies */}
-        {formData.project_id && availableDependencies.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Dependencies (tasks that must be completed first)
-            </label>
-            <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-200 rounded-md p-2">
+        {/* Dependencies Dropdown */}
+        {showDependencies && availableDependencies.length > 0 && (
+          <div className="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200">
+            <div className="text-xs font-medium text-slate-600 mb-2">Depends on:</div>
+            <div className="space-y-1">
               {availableDependencies.map(task => (
-                <label key={task.id || task._id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                <label key={task.id || task._id} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={formData.dependency_ids.includes(task.id || task._id)}
+                    checked={dependencyIds.includes(task.id || task._id)}
                     onChange={() => handleDependencyToggle(task.id || task._id)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-slate-300 text-slate-600 focus:ring-slate-400"
                   />
-                  <span className="text-sm text-gray-700">
-                    {task.title}
-                    {task.is_completed && <span className="text-green-600 ml-1">(completed)</span>}
-                  </span>
+                  <span className="text-sm text-slate-700">{task.title}</span>
                 </label>
               ))}
             </div>
           </div>
         )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-3">
-            <div className="text-sm text-red-800">{error}</div>
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? 'Creating...' : 'Create Task'}
-          </button>
-        </div>
       </form>
     </div>
   );

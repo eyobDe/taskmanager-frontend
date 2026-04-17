@@ -6,6 +6,7 @@ export const API_ENDPOINTS = {
   dashboard: (userId) => `${API_BASE_URL}/api/users/${userId}/dashboard`,
   createTask: () => `${API_BASE_URL}/api/tasks`,
   completeTask: (taskId) => `${API_BASE_URL}/api/tasks/${taskId}/complete`,
+  createProject: () => `${API_BASE_URL}/api/projects`,
 };
 
 // Helper function for fetching dashboard data
@@ -24,7 +25,13 @@ export const postCreateTask = async (taskData) => {
     },
     body: JSON.stringify(taskData),
   });
-  if (!res.ok) throw new Error(`Failed to create task: ${res.statusText}`);
+  
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    // Throw the specific validation details if they exist, otherwise fallback
+    throw new Error(errorData.error || errorData.details || `Failed to create task: ${res.statusText}`);
+  }
+  
   return res.json();
 };
 
@@ -37,6 +44,17 @@ export const putCompleteTask = async (taskId) => {
     },
   });
   if (!res.ok) throw new Error(`Failed to complete task: ${res.statusText}`);
+  return res.json();
+};
+
+// Helper function for creating a project
+export const postCreateProject = async (projectData) => {
+  const res = await fetch(API_ENDPOINTS.createProject(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(projectData),
+  });
+  if (!res.ok) throw new Error(`Failed to create project: ${res.statusText}`);
   return res.json();
 };
 
